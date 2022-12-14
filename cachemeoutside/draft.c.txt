@@ -1,0 +1,35 @@
+int main() {
+    char flagBuffer[72];
+    setbuf(stdout, NULL);
+
+    FILE* flagFile = fopen("flag.txt", "r");
+    fgets(flagBuffer, 64, flagFile);
+    char wontHelp[32] = "this is a random string";
+    char* first = NULL;
+    char* space = NULL;
+    for (int i = 0; i < 7; ++i) {
+        space = malloc(0x80);
+        if (first == NULL) {
+            first = space;
+        }
+        strcpy(space, "Congrats! Your flag is: ");
+        strcat(space, flagBuffer)
+    }
+
+    l88 = malloc(0x80);
+    strcpy(l88, "Sorry this won't help you: ")
+    strcat(l88, wontHelp);
+
+    free(space);
+    free(l88);
+
+    int a8;
+    char a9;
+    puts("You may edit one byte in the program.")
+    printf("Address: ");
+    scanf("%d", a8);
+    printf("Value: ");
+    scanf(" %c", a9);
+    *(first + a8) = a9;
+    puts(malloc(0x80));
+}
