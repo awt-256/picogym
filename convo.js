@@ -18,8 +18,9 @@ const convo = {
         else if (Array.isArray(any)) return Buffer.concat(any.map(c => convo.toBuffer(c)));
         else throw new TypeError("Unsupported type");
     },
-    string(any) {
-        return convo.raw(any).toString();
+    string(any, toNull=true) {
+        const str = convo.raw(any).toString()
+        return toNull ? str.slice(0, str.indexOf('\x00')) : str;
     },
     i32(any) {
         return convo.raw(any).readUint32LE();

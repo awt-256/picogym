@@ -1,4 +1,5 @@
 import { Socket } from "net";
+
 const nc = class PwnCat {
     constructor(host, port) {
         if (host.startsWith("nc")) {
@@ -31,6 +32,7 @@ const nc = class PwnCat {
             this._buffer = Buffer.concat([this._buffer, data]);
             socket.emit("delta", l);
         });
+        this._pipingOut = false;
     }
 
     async kill() {
@@ -38,6 +40,7 @@ const nc = class PwnCat {
     }
 
     async write(data, encoding="utf8") {
+        if (this._pipingOut) process.stdout.write(data);
         await new Promise(async r => (await this.socket)?.write(data, encoding, r));
     }
 
@@ -62,8 +65,9 @@ const nc = class PwnCat {
     }
 
     async readUntil(data) {
+        let l = 0;
         while (!this._buffer.includes(data)) {
-            await this.whenNBytes(data.length);
+            await this.whenNBytes(l += data.length);
         }
         const end = this._buffer.indexOf(data) + data.length;
 
@@ -75,6 +79,23 @@ const nc = class PwnCat {
 
     async readline() {
         return (await this.readUntil("\n")).toString();
+    }
+
+    async interactive() {
+        this.socket.then(socket => {
+            if (socket) {
+                process.stdin.pipe(socket);
+                socket.pipe(process.stdout);
+            }
+        });
+
+        return new Promise(() => {}); // hang
+    }
+
+    async pipeOut() {
+        console.log("---[+] Piping to stdout [+]---");
+        (await this.socket)?.pipe(process.stdout);
+        this._pipingOut = true;
     }
 }
 
