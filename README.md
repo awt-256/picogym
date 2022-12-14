@@ -1,2 +1,2 @@
 # picogym
-Picogym pwn writeups
+Picogym pwn
