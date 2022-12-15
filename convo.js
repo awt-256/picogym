@@ -1,8 +1,8 @@
 const _convo = Buffer.alloc(8);
 
 const convo = {
-    raw(any) {
-        if (typeof any === "string" || any instanceof Uint8Array) return Buffer.from(any);
+    raw(any,enc="ascii") {
+        if (typeof any === "string" || any instanceof Uint8Array) return Buffer.from(any, enc);
         else if (typeof any === "bigint") {
             _convo.writeBigUint64LE(any);
             return Buffer.from(_convo)
@@ -15,21 +15,27 @@ const convo = {
 
             return Buffer.from(_convo.subarray(0, 4));
         } else if (Buffer.isBuffer(any)) return any;
-        else if (Array.isArray(any)) return Buffer.concat(any.map(c => convo.toBuffer(c)));
+        else if (Array.isArray(any)) return Buffer.concat(any.map(c => convo.raw(c)));
         else throw new TypeError("Unsupported type");
     },
     string(any, toNull=true) {
         const str = convo.raw(any).toString()
-        return toNull ? str.slice(0, str.indexOf('\x00')) : str;
+        return toNull ? str.slice(0, str.indexOf('\x00') === -1 ? str.length : str.indexOf('\x00')) : str;
     },
     i32(any) {
-        return convo.raw(any).readUint32LE();
+        _convo.fill(0);
+        _convo.set(convo.raw(any).slice(0, 8));
+        return _convo.readUint32LE();
     },
     i64(any) {
-        return convo.raw(any).readBigUint64LE();
+        _convo.fill(0);
+        _convo.set(convo.raw(any).slice(0, 8));
+        return _convo.readBigUint64LE();
     },
     f32(any) {
-        return convo.raw(any).readFloatLE();
+        _convo.fill(0);
+        _convo.set(convo.raw(any).slice(0, 8));
+        return _convo.readFloatLE();
     }
 }
 

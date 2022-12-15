@@ -32,7 +32,8 @@ const nc = class PwnCat {
             this._buffer = Buffer.concat([this._buffer, data]);
             socket.emit("delta", l);
         });
-        this._pipingOut = false;
+        this.pipingStdout = false;
+        this.pipingStdin = false;
     }
 
     async kill() {
@@ -40,7 +41,7 @@ const nc = class PwnCat {
     }
 
     async write(data, encoding="utf8") {
-        if (this._pipingOut) process.stdout.write(data);
+        if (this.pipingStdout) process.stdout.write(data);
         await new Promise(async r => (await this.socket)?.write(data, encoding, r));
     }
 
@@ -84,18 +85,42 @@ const nc = class PwnCat {
     async interactive() {
         this.socket.then(socket => {
             if (socket) {
-                process.stdin.pipe(socket);
-                socket.pipe(process.stdout);
+                if (!this.pipingStdin) this.toggleStdin();
+                if (!this.pipingStdout) this.toggleStdout();
             }
         });
 
         return new Promise(() => {}); // hang
     }
 
-    async pipeOut() {
-        console.log("---[+] Piping to stdout [+]---");
-        (await this.socket)?.pipe(process.stdout);
-        this._pipingOut = true;
+    async toggleStdin() {
+        if (this.pipingStdin) this.socket.then(s => {
+            if (s) {
+                s.unpipe(process.stdin);
+                this.pipingStdin =! this.pipingStdin;
+            }
+        });
+        else this.socket.then(s => {
+            if (s) {
+                s.pipe(process.stdin);
+                this.pipingStdin =! this.pipingStdin;
+            }
+        });
+    }
+
+    async toggleStdout() {
+        if (this.pipingStdout) this.socket.then(s => {
+            if (s) {
+                process.stdout.unpipe(s);
+                this.pipingStdout =! this.pipingStdout;
+            }
+        });
+        else this.socket.then(s => {
+            if (s) {
+                process.stdout.pipe(s);
+                this.pipingStdout =! this.pipingStdout;
+            }
+        });
     }
 }
 
