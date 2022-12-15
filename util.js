@@ -15,6 +15,21 @@ export const shell = async (nc) => {
     }
 }
 
+const CYCLE = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+export const cyclic = (size, grouping=4) => {
+    let out = "";
+    for (let i = 0; i < size / grouping; i++) {
+        let h = "";
+        for (let j = 0, k = i; j < grouping; ++j) {
+            h = CYCLE[k % CYCLE.length] + h;
+            k = ~~(k / CYCLE.length);
+        }
+        out += h;
+    }
+
+    return out.slice(0, size);
+}
+
 export const hex = (num) => "0x" + num.toString(16);
 
 export const printf = (string, ...va) => {
