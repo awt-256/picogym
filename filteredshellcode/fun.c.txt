@@ -1,0 +1,28 @@
+// every 2 bytes, insert 2 NOPs
+void execute(char* bytecode, uint size) {
+  uint uVar3;
+  undefined shellcodeOut [8];
+  undefined *local_24;
+  uint outPos;
+
+  if (bytecode != NULL && size > 0) {
+    uint outsize = size * 2;
+    uint outPos = ((outsize + 0x10) / 0x10) * -0x10;
+    char shellcodeOut[outsize];
+    uint inPos = 0;
+    for (outPos = 0; outPos < outsize; outPos = outPos + 1) {
+      if ((outPos & 3)) < 2) {
+        inPos = inPos + 1;
+        shellcodeOut[outPos] = *(undefined *)(bytecode + inPos);
+      }
+      else {
+        shellcodeOut[outPos] = 0x90;
+      }
+    }
+    shellcodeOut[outsize + outPos] = 0xc3;
+    (*(code *)(shellcodeOut))();
+    return;
+  }
+                    /* WARNING: Subroutine does not return */
+  exit(1);
+}
