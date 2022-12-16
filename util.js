@@ -58,3 +58,12 @@ export const colorizeLog = text => {
 
 const log = console.log.bind(console);
 console.log = (c, ...a) => log(colorizeLog(c), ...a);
+
+export const expectArg = (idx, name) => {
+    if (!process.argv[idx]) {
+        console.log("Expected arg" + idx + " aka <" + name + "> to be set");
+        process.exit(1);
+    }
+
+    return process.argv[idx];
+}
